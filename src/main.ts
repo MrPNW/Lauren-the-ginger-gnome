@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from './config';
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
+import { HudScene } from './scenes/HudScene';
+import { OutOfEnergyScene } from './scenes/OutOfEnergyScene';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -13,7 +15,7 @@ const game = new Phaser.Game({
   physics: { default: 'arcade', arcade: { debug: false } },
   input: { gamepad: true },
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-  scene: [BootScene, GameScene],
+  scene: [BootScene, GameScene, HudScene, OutOfEnergyScene],
 });
 
 // Handy for debugging from the browser console.

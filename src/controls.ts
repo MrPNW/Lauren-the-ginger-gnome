@@ -7,19 +7,21 @@ export interface ControlState {
   run: boolean;
   jumpHeld: boolean;
   jumpPressed: boolean;
+  burstPressed: boolean;
 }
 
 export class Controls {
   private keys: Record<string, Phaser.Input.Keyboard.Key>;
   private scene: Phaser.Scene;
   private padJumpWasDown = false;
+  private padBurstWasDown = false;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     const K = Phaser.Input.Keyboard.KeyCodes;
     this.keys = scene.input.keyboard!.addKeys({
       left: K.LEFT, right: K.RIGHT, a: K.A, d: K.D,
-      up: K.UP, w: K.W, space: K.SPACE, shift: K.SHIFT,
+      up: K.UP, w: K.W, space: K.SPACE, shift: K.SHIFT, burst: K.L,
     }) as Record<string, Phaser.Input.Keyboard.Key>;
   }
 
@@ -33,6 +35,7 @@ export class Controls {
     let run = k.shift.isDown;
     let jumpHeld = k.space.isDown || k.up.isDown || k.w.isDown;
     let jumpPressed = JD(k.space) || JD(k.up) || JD(k.w);
+    let burstPressed = JD(k.burst);
 
     if (pad) {
       const x = pad.leftStick.x;
@@ -43,8 +46,11 @@ export class Controls {
       jumpHeld ||= padJump;
       jumpPressed ||= padJump && !this.padJumpWasDown;
       this.padJumpWasDown = padJump;
+      const padBurst = pad.R2 > 0.5;
+      burstPressed ||= padBurst && !this.padBurstWasDown;
+      this.padBurstWasDown = padBurst;
     }
 
-    return { left, right, run, jumpHeld, jumpPressed };
+    return { left, right, run, jumpHeld, jumpPressed, burstPressed };
   }
 }
