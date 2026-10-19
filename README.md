@@ -2,7 +2,7 @@
 
 A sidescroller about a too-small ginger gnome with a limited amount of energy each day.
 
-**Play it:** https://mrpnw.github.io/lauren-the-ginger-gnome/ (updates automatically from `main`)
+**Play it:** https://mrpnw.github.io/Lauren-the-ginger-gnome/ (updates automatically from `main`)
 
 ## Controls
 
