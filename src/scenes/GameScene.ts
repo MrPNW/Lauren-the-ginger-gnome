@@ -1,14 +1,16 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, MOVEMENT, TILE } from '../config';
+import { ENERGY, GAME_HEIGHT, GAME_WIDTH, MOVEMENT, TILE, TIME } from '../config';
 import { Controls } from '../controls';
 import { TEST_LEVEL } from '../level';
 import { Player } from '../objects/Player';
+import { EnergyState } from '../systems/Energy';
 
 export class GameScene extends Phaser.Scene {
   player!: Player;
   private controls!: Controls;
   private spawn = new Phaser.Math.Vector2(64, 64);
   private worldHeight = 0;
+  energy!: EnergyState;
 
   constructor() {
     super('Game');
@@ -67,18 +69,43 @@ export class GameScene extends Phaser.Scene {
 
     this.controls = new Controls(this);
 
-    this.add.text(8, 8, 'Move: arrows / A D   Run: Shift   Jump: Space (hold for higher)', {
+    this.energy = new EnergyState(ENERGY, TIME);
+    this.registry.set('energy', this.energy);
+    this.scene.launch('Hud');
+
+    this.add.text(8, GAME_HEIGHT - 8, 'Move: arrows / A D   Run: Shift   Jump: Space   Burst: L', {
       fontFamily: 'monospace', fontSize: '10px', color: '#1d1a24',
       backgroundColor: '#ffffffaa', padding: { x: 4, y: 2 },
-    }).setScrollFactor(0);
+    }).setOrigin(0, 1).setScrollFactor(0);
   }
 
-  update(time: number): void {
-    this.player.update(time, this.controls.read());
+  update(time: number, delta: number): void {
+    const c = this.controls.read();
+    const jumped = this.player.update(time, c);
+    this.useEnergy(c.run, jumped, c.burstPressed, delta / 1000);
 
     // Fell into a gap: back to the start.
     if (this.player.y > this.worldHeight + TILE * 2) {
       this.player.respawn(this.spawn.x, this.spawn.y);
+    }
+  }
+
+  // Every action costs energy, and the clock keeps ticking.
+  private useEnergy(running: boolean, jumped: boolean, burst: boolean, seconds: number): void {
+    const e = this.energy;
+    e.passTime(TIME.minutesPerSecond * seconds);
+
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    const moving = Math.abs(body.velocity.x) > 10;
+    if (moving) e.spend((running ? ENERGY.runPerSecond : ENERGY.walkPerSecond) * seconds);
+    if (jumped) e.spend(ENERGY.jump);
+
+    if (burst && e.burst()) this.game.events.emit('burst');
+
+    if (e.isEmpty) {
+      this.player.setAcceleration(0, 0).setVelocityX(0);
+      this.scene.launch('OutOfEnergy');
+      this.scene.pause();
     }
   }
 }

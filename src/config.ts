@@ -18,3 +18,27 @@ export const MOVEMENT = {
   // A jump pressed this long before landing still counts.
   jumpBufferMs: 120,
 };
+
+// Energy and time. All starting values, meant to be tuned by playing.
+export const ENERGY = {
+  max: 100,
+  // Per second of movement.
+  walkPerSecond: 0.6,
+  runPerSecond: 1.8,
+  jump: 2,
+  // Burst: borrow this much from tomorrow at any time.
+  burstAmount: 25,
+  // "Energy of next day" when the bar is empty.
+  borrowAmount: 50,
+  // Crying gives back only this much.
+  cryEnergy: 10,
+};
+
+export const TIME = {
+  // Game minutes that pass per real second.
+  minutesPerSecond: 1,
+  // Day 1 starts at this time (minutes after midnight): 07:00.
+  startMinutes: 7 * 60,
+  cryMinutes: 60,
+  sleepMinutes: 8 * 60,
+};

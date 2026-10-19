@@ -24,7 +24,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.jumping = false;
   }
 
-  update(time: number, c: ControlState): void {
+  /** Moves Lauren for this frame. Returns true if she jumped. */
+  update(time: number, c: ControlState): boolean {
     const body = this.body as Phaser.Physics.Arcade.Body;
     const onGround = body.blocked.down;
     const maxSpeed = c.run ? MOVEMENT.runSpeed : MOVEMENT.walkSpeed;
@@ -46,12 +47,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     if (c.jumpPressed) this.jumpPressedAt = time;
 
+    let jumped = false;
     const canJump = time - this.lastGroundedAt <= MOVEMENT.coyoteMs && !this.jumping;
     const wantsJump = time - this.jumpPressedAt <= MOVEMENT.jumpBufferMs;
     if (canJump && wantsJump) {
       this.setVelocityY(-MOVEMENT.jumpVelocity);
       this.jumping = true;
       this.jumpPressedAt = -Infinity;
+      jumped = true;
     }
 
     // Short hop: letting go early cuts the jump.
@@ -59,5 +62,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityY(body.velocity.y * MOVEMENT.jumpCutMultiplier);
       this.jumping = false;
     }
+    return jumped;
   }
 }
