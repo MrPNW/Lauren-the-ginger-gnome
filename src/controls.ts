@@ -8,6 +8,8 @@ export interface ControlState {
   jumpHeld: boolean;
   jumpPressed: boolean;
   burstPressed: boolean;
+  weaponPressed: boolean;
+  spellPressed: boolean;
 }
 
 export class Controls {
@@ -15,6 +17,8 @@ export class Controls {
   private scene: Phaser.Scene;
   private padJumpWasDown = false;
   private padBurstWasDown = false;
+  private padWeaponWasDown = false;
+  private padSpellWasDown = false;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -22,6 +26,7 @@ export class Controls {
     this.keys = scene.input.keyboard!.addKeys({
       left: K.LEFT, right: K.RIGHT, a: K.A, d: K.D,
       up: K.UP, w: K.W, space: K.SPACE, shift: K.SHIFT, burst: K.L,
+      weapon: K.J, spell: K.K,
     }) as Record<string, Phaser.Input.Keyboard.Key>;
   }
 
@@ -36,6 +41,8 @@ export class Controls {
     let jumpHeld = k.space.isDown || k.up.isDown || k.w.isDown;
     let jumpPressed = JD(k.space) || JD(k.up) || JD(k.w);
     let burstPressed = JD(k.burst);
+    let weaponPressed = JD(k.weapon);
+    let spellPressed = JD(k.spell);
 
     if (pad) {
       const x = pad.leftStick.x;
@@ -49,8 +56,12 @@ export class Controls {
       const padBurst = pad.R2 > 0.5;
       burstPressed ||= padBurst && !this.padBurstWasDown;
       this.padBurstWasDown = padBurst;
+      weaponPressed ||= pad.X && !this.padWeaponWasDown;
+      this.padWeaponWasDown = pad.X;
+      spellPressed ||= pad.Y && !this.padSpellWasDown;
+      this.padSpellWasDown = pad.Y;
     }
 
-    return { left, right, run, jumpHeld, jumpPressed, burstPressed };
+    return { left, right, run, jumpHeld, jumpPressed, burstPressed, weaponPressed, spellPressed };
   }
 }

@@ -11,6 +11,8 @@ A sidescroller about a too-small ginger gnome with a limited amount of energy ea
 | Move | Arrow keys or A / D | Left stick or d-pad |
 | Run | Hold Shift | Hold B |
 | Jump (hold for higher) | Space, W or Up | A |
+| Throw coffee mug (weapon) | J | X |
+| Cast sharp wits (spell) | K | Y |
 | Burst (borrow energy from tomorrow) | L | Right trigger |
 
 ## Energy and days
@@ -23,6 +25,14 @@ keeps ticking. A burst borrows energy from tomorrow. When the bar is empty you c
 - **Sleep**: 8 hours pass and a new day starts, minus whatever you borrowed
 
 All the numbers are in `src/config.ts` (`ENERGY` and `TIME`).
+
+## Weapons, spells and enemies
+
+- **Coffee mug** (6 energy): thrown in an arc, trailing fire. Incinerates what it hits.
+- **Sharp wits** (15 energy): a fast beam that goes straight through every enemy in its way.
+- **Small Talk**: a speech bubble on legs that patrols and drains 8 energy if you bump into it.
+
+Weapons and spells are entries in `src/weapons.ts`, so adding one is mostly data.
 
 ## Adding art
 
@@ -49,4 +59,7 @@ npm run build    # checks types and builds the site into dist/
 | `src/level.ts` | The test level, drawn as text |
 | `src/objects/Player.ts` | Lauren's movement |
 | `src/systems/Energy.ts` | Energy, clock and day rules (tested in `Energy.test.ts`) |
+| `src/weapons.ts` | Weapons and spells |
+| `src/systems/Combat.ts` | Throwing, casting, hits and getting hurt |
+| `src/objects/Enemy.ts` | The Small Talk enemy |
 | `src/scenes/` | Loading and the game itself |

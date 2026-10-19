@@ -2,7 +2,10 @@ import Phaser from 'phaser';
 import { ENERGY, GAME_HEIGHT, GAME_WIDTH, MOVEMENT, TILE, TIME } from '../config';
 import { Controls } from '../controls';
 import { TEST_LEVEL } from '../level';
+import { Enemy } from '../objects/Enemy';
 import { Player } from '../objects/Player';
+import { Combat } from '../systems/Combat';
+import { STARTING_SPELL, STARTING_WEAPON } from '../weapons';
 import { EnergyState } from '../systems/Energy';
 
 export class GameScene extends Phaser.Scene {
@@ -11,6 +14,9 @@ export class GameScene extends Phaser.Scene {
   private spawn = new Phaser.Math.Vector2(64, 64);
   private worldHeight = 0;
   energy!: EnergyState;
+  private enemies!: Phaser.Physics.Arcade.Group;
+  private combat!: Combat;
+  private enemySpawns: Phaser.Math.Vector2[] = [];
 
   constructor() {
     super('Game');
@@ -43,6 +49,8 @@ export class GameScene extends Phaser.Scene {
           check.right = !at(1, 0);
         } else if (ch === '=') {
           platforms.create(x + TILE / 2, y + 8, 'platform');
+        } else if (ch === 'E') {
+          this.enemySpawns.push(new Phaser.Math.Vector2(x + TILE / 2, y + TILE - 16));
         } else if (ch === 'P') {
           this.spawn.set(x + TILE / 2, y + TILE - 24);
         }
@@ -62,6 +70,11 @@ export class GameScene extends Phaser.Scene {
       return body.velocity.y >= 0;
     });
 
+    this.enemies = this.physics.add.group({ runChildUpdate: true });
+    for (const pos of this.enemySpawns) this.enemies.add(new Enemy(this, pos.x, pos.y));
+    this.physics.add.collider(this.enemies, solids);
+    this.physics.add.collider(this.enemies, platforms);
+
     this.cameras.main.setBounds(0, 0, worldWidth, this.worldHeight);
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
     this.cameras.main.setDeadzone(80, 60);
@@ -73,7 +86,9 @@ export class GameScene extends Phaser.Scene {
     this.registry.set('energy', this.energy);
     this.scene.launch('Hud');
 
-    this.add.text(8, GAME_HEIGHT - 8, 'Move: arrows / A D   Run: Shift   Jump: Space   Burst: L', {
+    this.combat = new Combat(this, this.player, this.energy, this.enemies, solids);
+
+    this.add.text(8, GAME_HEIGHT - 8, `Move: arrows/A D  Run: Shift  Jump: Space  ${STARTING_WEAPON.name}: J (${STARTING_WEAPON.energyCost})  ${STARTING_SPELL.name}: K (${STARTING_SPELL.energyCost})  Burst: L`, {
       fontFamily: 'monospace', fontSize: '10px', color: '#1d1a24',
       backgroundColor: '#ffffffaa', padding: { x: 4, y: 2 },
     }).setOrigin(0, 1).setScrollFactor(0);
@@ -82,6 +97,8 @@ export class GameScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     const c = this.controls.read();
     const jumped = this.player.update(time, c);
+    if (c.weaponPressed) this.combat.use(STARTING_WEAPON, time);
+    if (c.spellPressed) this.combat.use(STARTING_SPELL, time);
     this.useEnergy(c.run, jumped, c.burstPressed, delta / 1000);
 
     // Fell into a gap: back to the start.
