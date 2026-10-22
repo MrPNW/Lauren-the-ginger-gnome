@@ -36,9 +36,10 @@ export class Combat {
     if (time < (this.readyAt.get(def.id) ?? 0)) return false;
     this.readyAt.set(def.id, time + def.cooldownMs);
     this.energy.spend(def.energyCost);
+    this.player.playAction(def.kind === 'spell' ? 'cast' : 'throw');
 
     const dir = this.player.flipX ? -1 : 1;
-    const proj = this.projectiles.create(this.player.x + dir * 14, this.player.y - 6, def.texture) as Phaser.Physics.Arcade.Image;
+    const proj = this.projectiles.create(this.player.x + dir * 24, this.player.y - 10, def.texture) as Phaser.Physics.Arcade.Image;
     const body = proj.body as Phaser.Physics.Arcade.Body;
     body.setAllowGravity(def.gravity);
     proj.setVelocity(def.speed * dir, -def.lift);
@@ -72,22 +73,24 @@ export class Combat {
 
     // Knock Lauren back and make her blink while she can't be hit again.
     const away = this.player.x < enemy.x ? -1 : 1;
-    this.player.setVelocity(away * 220, -200);
+    this.player.setVelocity(away * 360, -330);
+    this.player.playAction('hurt');
     this.scene.tweens.add({ targets: this.player, alpha: 0.3, duration: 100, yoyo: true, repeat: 4,
       onComplete: () => this.player.setAlpha(1) });
-    this.popup(this.player.x, this.player.y - 30, `-${enemy.contactDrain} energy`, '#d23b3b');
+    this.popup(this.player.x, this.player.y - 60, `-${enemy.contactDrain} energy`, '#d23b3b');
   }
 
   private defeat(enemy: Enemy, finish: WeaponDef['finish']): void {
     const body = enemy.body as Phaser.Physics.Arcade.Body;
     body.enable = false;
+    this.scene.events.emit('enemy-defeated', enemy);
     const lines = finish === 'incinerate' ? INCINERATE_LINES : DEVASTATE_LINES;
-    this.popup(enemy.x, enemy.y - 24, Phaser.Utils.Array.GetRandom(lines), finish === 'incinerate' ? '#ff7a1a' : '#8fd3ff');
+    this.popup(enemy.x, enemy.y - enemy.height - 16, Phaser.Utils.Array.GetRandom(lines), finish === 'incinerate' ? '#ff7a1a' : '#8fd3ff');
 
     if (finish === 'incinerate') {
       // Burst into flames, char black, crumble to nothing.
-      const flames = this.scene.add.particles(enemy.x, enemy.y, 'flame', {
-        speed: { min: 20, max: 90 }, angle: { min: 200, max: 340 }, lifespan: 600,
+      const flames = this.scene.add.particles(enemy.x, enemy.y - enemy.height / 2, 'flame', {
+        speed: { min: 30, max: 150 }, angle: { min: 200, max: 340 }, lifespan: 600,
         scale: { start: 1.4, end: 0 }, quantity: 3, frequency: 30, gravityY: -120,
       });
       enemy.setTint(0x2a1a10);
@@ -126,7 +129,7 @@ export class Combat {
 
   private popup(x: number, y: number, text: string, color: string): void {
     const t = this.scene.add.text(x, y, text, {
-      fontFamily: 'monospace', fontSize: '11px', color, stroke: '#1d1a24', strokeThickness: 3,
+      fontFamily: 'monospace', fontSize: '20px', color, stroke: '#1d1a24', strokeThickness: 4,
     }).setOrigin(0.5);
     this.scene.tweens.add({ targets: t, y: y - 24, alpha: 0, duration: 1100, onComplete: () => t.destroy() });
   }

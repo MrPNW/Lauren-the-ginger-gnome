@@ -1,18 +1,37 @@
 import Phaser from 'phaser';
 
-// Small Talk: a speech bubble that patrols back and forth and drains Lauren's
-// energy if she bumps into it.
+export interface EnemyKind {
+  texture: string;
+  health: number;
+  /** Energy Lauren loses when she bumps into it. */
+  contactDrain: number;
+  speed: number;
+  isBoss: boolean;
+}
+
+export const SMALL_TALK: EnemyKind = { texture: 'small_talk', health: 3, contactDrain: 8, speed: 65, isBoss: false };
+// Placeholder boss until each room gets its own (like the coffee machine dude).
+export const BOSS: EnemyKind = { texture: 'boss', health: 15, contactDrain: 15, speed: 50, isBoss: true };
+
+// Patrols back and forth and drains Lauren's energy if she bumps into it.
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
-  health = 3;
-  readonly contactDrain = 8;
-  private speed = 40;
+  health: number;
+  readonly contactDrain: number;
+  readonly isBoss: boolean;
+  private speed: number;
   private dir = -1;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'small_talk');
+  constructor(scene: Phaser.Scene, x: number, feetY: number, kind: EnemyKind) {
+    super(scene, x, feetY, kind.texture);
+    this.setOrigin(0.5, 1);
     scene.add.existing(this);
     scene.physics.add.existing(this);
-    (this.body as Phaser.Physics.Arcade.Body).setSize(26, 30).setOffset(3, 2);
+    this.health = kind.health;
+    this.contactDrain = kind.contactDrain;
+    this.isBoss = kind.isBoss;
+    this.speed = kind.speed;
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    body.setSize(this.width * 0.8, this.height * 0.95).setOffset(this.width * 0.1, this.height * 0.05);
   }
 
   get alive(): boolean {

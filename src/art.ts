@@ -1,6 +1,7 @@
-// The art list. Every image the game uses is listed here with its final size.
-// To use real art, save a transparent PNG at art/<key>.png with the
-// same size. Anything missing is drawn as a placeholder instead.
+// The art list. Every image the game uses (apart from rooms and Lauren's
+// animations, see src/rooms.ts and src/animations.ts) is listed here with its
+// size in the game. To use real art, save a transparent PNG at art/<key>.png.
+// Anything missing is drawn as a placeholder instead.
 
 export interface ArtEntry {
   key: string;
@@ -10,13 +11,10 @@ export interface ArtEntry {
 }
 
 export const ART: ArtEntry[] = [
-  { key: 'lauren', width: 32, height: 48, description: 'Lauren standing, facing right' },
-  { key: 'ground', width: 32, height: 32, description: 'Ground tile (top surface)' },
-  { key: 'dirt', width: 32, height: 32, description: 'Ground tile (below the surface)' },
-  { key: 'platform', width: 32, height: 16, description: 'Floating platform tile' },
-  { key: 'small_talk', width: 32, height: 32, description: 'Enemy: Small Talk, a walking speech bubble' },
-  { key: 'coffee_mug', width: 14, height: 14, description: 'Thrown coffee mug (flaming)' },
-  { key: 'sharp_wits', width: 28, height: 8, description: 'Sharp wits spell beam' },
-  { key: 'flame', width: 8, height: 8, description: 'Flame particle' },
-  { key: 'background', width: 640, height: 360, description: 'Sky / far background, scrolls slowly' },
+  { key: 'small_talk', width: 48, height: 48, description: 'Enemy: Small Talk, a walking speech bubble' },
+  { key: 'boss', width: 80, height: 160, description: 'Boss (placeholder human, 2 x 4 cells)' },
+  { key: 'person', width: 80, height: 160, description: 'Someone to talk to (2 x 4 cells)' },
+  { key: 'coffee_mug', width: 28, height: 28, description: 'Thrown coffee mug (flaming)' },
+  { key: 'sharp_wits', width: 56, height: 16, description: 'Sharp wits spell beam, pointing right' },
+  { key: 'flame', width: 16, height: 16, description: 'Flame particle' },
 ];
