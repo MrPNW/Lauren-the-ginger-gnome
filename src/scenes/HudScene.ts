@@ -1,5 +1,9 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH } from '../config';
+import { GAME_HEIGHT as SCREEN_H, GAME_WIDTH as SCREEN_W } from '../config';
+
+// Laid out on a half-size canvas and shown at 2x zoom.
+const GAME_WIDTH = SCREEN_W / 2;
+const GAME_HEIGHT = SCREEN_H / 2;
 import type { EnergyState } from '../systems/Energy';
 
 const BAR_X = 10;
@@ -20,12 +24,13 @@ export class HudScene extends Phaser.Scene {
   }
 
   create(): void {
-    const style = { fontFamily: 'monospace', fontSize: '10px', color: '#1d1a24' };
+    this.cameras.main.setZoom(2).centerOn(GAME_WIDTH / 2, GAME_HEIGHT / 2);
+    const style = { fontFamily: 'monospace', fontSize: '10px', color: '#ffffff', stroke: '#1d1a24', strokeThickness: 3 };
     this.bar = this.add.graphics();
     this.energyText = this.add.text(BAR_X + BAR_W + 6, BAR_Y, '', style);
-    this.debtText = this.add.text(BAR_X, BAR_Y + BAR_H + 3, '', { ...style, color: '#8b1e1e' });
+    this.debtText = this.add.text(BAR_X, BAR_Y + BAR_H + 3, '', { ...style, color: '#ff9a9a' });
     this.clockText = this.add.text(GAME_WIDTH - 10, BAR_Y, '', {
-      ...style, fontSize: '12px', backgroundColor: '#ffffffaa', padding: { x: 4, y: 2 },
+      ...style, fontSize: '12px', color: '#1d1a24', strokeThickness: 0, backgroundColor: '#ffffffcc', padding: { x: 4, y: 2 },
     }).setOrigin(1, 0);
 
     this.game.events.on('burst', () => (this.burstFlash = 1), this);

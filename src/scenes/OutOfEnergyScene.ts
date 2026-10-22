@@ -1,5 +1,9 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../config';
+import { GAME_HEIGHT as SCREEN_H, GAME_WIDTH as SCREEN_W } from '../config';
+
+// Laid out on a half-size canvas and shown at 2x zoom.
+const GAME_WIDTH = SCREEN_W / 2;
+const GAME_HEIGHT = SCREEN_H / 2;
 import type { EnergyState } from '../systems/Energy';
 
 interface Choice {
@@ -43,6 +47,7 @@ export class OutOfEnergyScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.cameras.main.setZoom(2).centerOn(GAME_WIDTH / 2, GAME_HEIGHT / 2);
     const s = this.registry.get('energy') as EnergyState;
     this.index = CHOICES.findIndex((c) => c.enabled(s));
     this.chosen = false;
